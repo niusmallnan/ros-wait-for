@@ -54,7 +54,6 @@ func NewChecker(timeout, interval time.Duration, containers, interfaces string) 
 func (c *Checker) Check() types.Exit {
 	var status1, status2 bool
 	for {
-		logrus.Debug("Checking now...")
 		status1 = c.checkRunning()
 		if _, ok := c.containersMap[containerNetwork]; ok && len(c.interfacesMap) > 0 {
 			status2 = c.checkNetwork()
@@ -70,6 +69,7 @@ func (c *Checker) Check() types.Exit {
 }
 
 func (c *Checker) checkRunning() bool {
+	logrus.Debug("Checking running state...")
 	for name := range c.containersMap {
 		container, err := c.client.ContainerInspect(context.Background(), name)
 		if err != nil {
@@ -83,10 +83,13 @@ func (c *Checker) checkRunning() bool {
 			return false
 		}
 	}
+
+	logrus.Info("Checking passed for running state")
 	return true
 }
 
 func (c *Checker) checkNetwork() bool {
+	logrus.Debug("Checking interfaces state...")
 	links, err := netlink.LinkList()
 	if err != nil {
 		logrus.Errorf("Failed to get netlinks: %v", err)
@@ -110,6 +113,8 @@ func (c *Checker) checkNetwork() bool {
 			return false
 		}
 	}
+
+	logrus.Info("Checking passed for interface state")
 	return true
 }
 

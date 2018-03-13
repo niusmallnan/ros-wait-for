@@ -1,5 +1,5 @@
-#!/bin/bash
+#!/bin/sh
 
-/usr/bin/ros-wati-for -d --containers network --interfaces eth0
+/usr/bin/ros-wait-for -d --containers network --interfaces eth0
 
 exec "$@"
