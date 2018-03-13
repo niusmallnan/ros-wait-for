@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/Sirupsen/logrus"
-	apiTypes "github.com/docker/docker/api/types"
 	dockerClient "github.com/docker/docker/client"
 	"github.com/niusmallnan/ros-wait-for/types"
 	"github.com/pkg/errors"
@@ -70,22 +69,15 @@ func (c *Checker) Check() types.Exit {
 }
 
 func (c *Checker) checkRunning() bool {
-	containers, err := c.client.ContainerList(context.Background(), apiTypes.ContainerListOptions{})
-	if err != nil {
-		logrus.Errorf("Failed to get container list: %v", err)
-		return false
-	}
-	for _, container := range containers {
-		logrus.Debugf("Got container %s status: %s", container.Names, container.Status)
-		if container.Status == "running" {
-			for _, name := range container.Names {
-				c.containersMap[name] = true
-			}
+	for name := range c.containersMap {
+		container, err := c.client.ContainerInspect(context.Background(), name)
+		if err != nil {
+			logrus.Errorf("Failed to get container %s: %v", name, err)
+			return false
 		}
-	}
 
-	for _, running := range c.containersMap {
-		if !running {
+		if !container.State.Running {
+			logrus.Infof("Got a non running container: %s", name)
 			return false
 		}
 	}
