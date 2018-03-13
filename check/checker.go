@@ -70,15 +70,15 @@ func (c *Checker) Check() types.Exit {
 }
 
 func (c *Checker) checkRunning() bool {
-	cs, err := c.client.ContainerList(context.Background(), apiTypes.ContainerListOptions{})
+	containers, err := c.client.ContainerList(context.Background(), apiTypes.ContainerListOptions{})
 	if err != nil {
 		logrus.Errorf("Failed to get container list: %v", err)
 		return false
 	}
-	for _, c := range cs {
-		logrus.Debugf("Got container %s status: %s", c.Names, c.Status)
-		if c.Status == "running" {
-			for _, name := range c.Names {
+	for _, container := range containers {
+		logrus.Debugf("Got container %s status: %s", container.Names, container.Status)
+		if container.Status == "running" {
+			for _, name := range container.Names {
 				c.containersMap[name] = true
 			}
 		}

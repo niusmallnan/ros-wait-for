@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"time"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/niusmallnan/ros-wait-for/check"
@@ -37,13 +38,13 @@ func main() {
 		cli.DurationFlag{
 			Name:   "timeout",
 			Usage:  "Timeout duration for waiting",
-			Value:  "10s",
+			Value:  10 * time.Second,
 			EnvVar: "RWF_TIMEOUT_DURATION",
 		},
 		cli.DurationFlag{
 			Name:   "interval",
 			Usage:  "Interval duration for checking",
-			Value:  "1s",
+			Value:  1 * time.Second,
 			EnvVar: "RWF_INTERVAL_DURATION",
 		},
 	}
@@ -52,7 +53,7 @@ func main() {
 
 func run(c *cli.Context) error {
 	if c.Bool("debug") {
-		log.SetLevelString("debug")
+		logrus.SetLevel(logrus.DebugLevel)
 	}
 
 	checker, err := check.NewChecker(c.Duration("timeout"),
