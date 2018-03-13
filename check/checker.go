@@ -54,8 +54,9 @@ func NewChecker(timeout, interval time.Duration, containers, interfaces string) 
 func (c *Checker) Check() types.Exit {
 	var status1, status2 bool
 	for {
+		logrus.Debug("Checking now...")
 		status1 = c.checkRunning()
-		if _, ok := c.containersMap[containerNetwork]; ok {
+		if _, ok := c.containersMap[containerNetwork]; ok && len(c.interfacesMap) > 0 {
 			status2 = c.checkNetwork()
 		}
 		if status1 && status2 {
@@ -76,6 +77,7 @@ func (c *Checker) checkRunning() bool {
 			return false
 		}
 
+		logrus.Debugf("Got the state running %t of container %s", container.State.Running, name)
 		if !container.State.Running {
 			logrus.Infof("Got a non running container: %s", name)
 			return false
